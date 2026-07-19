@@ -43,7 +43,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* ĐÃ SỬA LỖI: Dùng nền Galaxy Gradient thay vì link ảnh lỗi */
         body.success-bg {
             background: linear-gradient(-45deg, #0f0c1b, #200110, #2d0b1e, #050515) !important;
             background-size: 400% 400% !important;
@@ -87,6 +86,12 @@
             border: 2px solid rgba(255, 77, 109, 0.4);
             box-shadow: 0 30px 70px rgba(255, 77, 109, 0.4),
                         inset 0 0 30px rgba(255, 77, 109, 0.2);
+            animation: floatCard 4s ease-in-out infinite alternate; /* Card bồng bềnh lãng mạn */
+        }
+
+        @keyframes floatCard {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
         }
 
         .card::before {
@@ -167,8 +172,16 @@
         }
 
         body.success-bg h1 {
-            background: linear-gradient(45deg, #fff, #ff758f, #ff4d6d);
+            background: linear-gradient(45deg, #ff8fa3, #ff4d6d, #fffb00, #ff8fa3);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
+            animation: neonTextGLow 4s linear infinite;
+        }
+
+        @keyframes neonTextGLow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .prompt-text {
@@ -231,7 +244,6 @@
             30%, 60%, 90% { transform: translateX(12px); }
         }
 
-        /* Success Screen */
         .success-content {
             display: none;
             opacity: 0;
@@ -258,12 +270,14 @@
         .love-signature {
             font-family: var(--font-fancy);
             font-size: 38px;
-            background: linear-gradient(45deg, #fff, #ff8fa3);
+            background: linear-gradient(45deg, #fff, #ff8fa3, #fffb00);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-top: 25px;
             font-weight: bold;
             text-shadow: var(--neon-glow);
+            animation: neonTextGLow 3s linear infinite;
         }
     </style>
 </head>
@@ -274,7 +288,6 @@
     <div class="card-wrapper">
         <div class="card" id="mainCard">
             <div class="card-content">
-                <!-- Màn hỏi -->
                 <div id="askSection">
                     <div class="heart-glow-container">
                         <div class="header-icon" id="headerEmoji">💝</div>
@@ -289,7 +302,6 @@
                     </div>
                 </div>
 
-                <!-- Màn ăn mừng với GIF bùng nổ -->
                 <div id="successSection" class="success-content">
                     <div class="heart-glow-container">
                         <div class="header-icon">💖</div>
@@ -300,8 +312,7 @@
                         Cảm ơn cậu vì đã bằng lòng bước vào thế giới của tớ.<br>Hứa sẽ làm cậu mỉm cười mỗi ngày!
                     </p>
                     
-                    <!-- Sử dụng hình ảnh động đầy lãng mạn mà bạn vừa gửi -->
-                    <img class="success-gif" src="https://media.giphy.com/media/YSW8rPJMIb8jGpVpv5/giphy.gif" alt="I Love You">
+                    <img class="success-gif" src="https://media.giphy.com/media/7jJgzTGMrwrnHDl9cw/giphy.gif" alt="I Love You">
                     
                     <div class="love-signature">Yêu cậu vô điều kiện! 👩‍❤️‍👨</div>
                 </div>
@@ -340,7 +351,7 @@
         resizeCanvas();
 
         class HeartParticle {
-            constructor(x, y, size, speedX, speedY, opacity, color, isMouseGenerated = false) {
+            constructor(x, y, size, speedX, speedY, opacity, color, isMouseGenerated = false, type = 'heart') {
                 this.x = x;
                 this.y = y;
                 this.size = size;
@@ -351,6 +362,7 @@
                 this.rotation = Math.random() * Math.PI;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.04;
                 this.isMouseGenerated = isMouseGenerated;
+                this.type = type; // 'heart' hoặc 'star'
             }
 
             draw() {
@@ -358,14 +370,22 @@
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
                 ctx.beginPath();
-                ctx.moveTo(0, -this.size / 4);
-                ctx.bezierCurveTo(-this.size / 2, -this.size, -this.size, -this.size / 3, 0, this.size);
-                ctx.bezierCurveTo(this.size, -this.size / 3, this.size / 2, -this.size, 0, -this.size / 4);
-                ctx.fillStyle = this.color;
-                if (this.isMouseGenerated || isCelebration) {
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = 'rgba(255, 77, 109, 0.9)';
+                
+                if (this.type === 'heart') {
+                    ctx.moveTo(0, -this.size / 4);
+                    ctx.bezierCurveTo(-this.size / 2, -this.size, -this.size, -this.size / 3, 0, this.size);
+                    ctx.bezierCurveTo(this.size, -this.size / 3, this.size / 2, -this.size, 0, -this.size / 4);
+                } else {
+                    // Vẽ ngôi sao lấp lánh nhỏ
+                    for (let i = 0; i < 5; i++) {
+                        ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * this.size, -Math.sin((18 + i * 72) * Math.PI / 180) * this.size);
+                        ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * (this.size/2), -Math.sin((54 + i * 72) * Math.PI / 180) * (this.size/2));
+                    }
                 }
+                
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
                 ctx.fill();
                 ctx.restore();
             }
@@ -376,7 +396,7 @@
                 this.rotation += this.rotationSpeed;
                 
                 if (isCelebration || this.isMouseGenerated) {
-                    this.speedY += 0.04; 
+                    this.speedY += 0.03; // Rơi xuống mượt mà tự nhiên
                     if (this.isMouseGenerated) {
                         this.opacity -= 0.015; 
                     }
@@ -403,6 +423,29 @@
             }
         }
         initAmbientHearts();
+
+        // Tạo hiệu ứng mưa tim rơi liên tục sau khi bấm đồng ý
+        function startContinuousRain() {
+            const colors = ['#ff4d6d', '#ff758f', '#ffb3c1', '#fffb00', '#ffffff'];
+            setInterval(() => {
+                if (!isCelebration) return;
+                if (particles.length > 200) return; // Giới hạn hạt để mượt máy
+                
+                const size = Math.random() * 12 + 6;
+                const type = Math.random() > 0.4 ? 'heart' : 'star';
+                particles.push(new HeartParticle(
+                    Math.random() * canvas.width,
+                    -20,
+                    size,
+                    (Math.random() - 0.5) * 1.5,
+                    Math.random() * 2 + 1,
+                    Math.random() * 0.7 + 0.3,
+                    colors[Math.floor(Math.random() * colors.length)],
+                    false,
+                    type
+                ));
+            }, 80);
+        }
 
         window.addEventListener('mousemove', function(e) {
             if (Math.random() > 0.15) return; 
@@ -485,24 +528,28 @@
             isCelebration = true;
             particles = []; 
 
-            // Kích hoạt hình nền Neon lãng mạn từ bức ảnh bạn gửi
             document.body.classList.add('success-bg');
 
-            // Hiệu ứng pháo hoa vàng óng lấp lánh như trong GIF
-            const colors = ['#ffb3c1', '#ffe5ec', '#ffb703', '#fb8500', '#ffffff', '#ff4d6d'];
-            for (let i = 0; i < 250; i++) {
+            // Cú nổ pháo hoa lớn ban đầu
+            const colors = ['#ffb3c1', '#ffe5ec', '#fffb00', '#ffffff', '#ff4d6d'];
+            for (let i = 0; i < 200; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 12 + 5;
+                const speed = Math.random() * 14 + 4;
+                const type = Math.random() > 0.5 ? 'heart' : 'star';
                 particles.push(new HeartParticle(
                     canvas.width / 2,
                     canvas.height / 2 - 50,
-                    Math.random() * 14 + 6,
+                    Math.random() * 12 + 6,
                     Math.cos(angle) * speed,
-                    Math.sin(angle) * speed - 5,
+                    Math.sin(angle) * speed - 4,
                     Math.random() * 0.8 + 0.2,
-                    colors[Math.floor(Math.random() * colors.length)]
+                    colors[Math.floor(Math.random() * colors.length)],
+                    false,
+                    type
                 ));
             }
+
+            startContinuousRain(); // Kích hoạt hiệu ứng mưa rơi không bao giờ tắt
 
             document.getElementById('askSection').style.display = 'none';
             const successSection = document.getElementById('successSection');
@@ -513,5 +560,4 @@
         }
     </script>
 </body>
-  </html>
-
+</html>
